@@ -381,6 +381,7 @@ input.au-input.au-input-xl {
   color: #555;
   font-size: 16px;
   padding: 5px 0;
+  text-decoration: none;
 }
 
 .navbar-sidebar .navbar-list li a i {
@@ -747,6 +748,7 @@ a.primary-btn {
   border-radius: 2px;
   font-size: 14px;
   margin-top: 5px;
+  text-decoration: none;
 }
 a.primary-btn:hover {
   background: #0da8e4;

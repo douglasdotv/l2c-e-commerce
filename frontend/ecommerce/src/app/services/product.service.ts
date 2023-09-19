@@ -8,15 +8,15 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ProductService {
-  private readonly apiUrl = 'http://localhost:8080/api/products';
+  private readonly baseUrl = 'http://localhost:8080/api/products';
 
   constructor(private httpClient: HttpClient) {}
 
   getProductList(categoryId: number): Observable<Product[]> {
-    // TODO: Need to build URL based on category id
+    const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${categoryId}`;
 
     return this.httpClient
-      .get<GetResponse>(this.apiUrl)
+      .get<GetResponse>(searchUrl)
       .pipe(map((response) => response._embedded.products));
   }
 }

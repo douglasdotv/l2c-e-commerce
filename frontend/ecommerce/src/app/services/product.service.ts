@@ -33,6 +33,11 @@ export class ProductService {
     const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}`;
     return this.fetchData<Product>(url, 'products');
   }
+
+  getProduct(productId: number): Observable<Product> {
+    const url = `${this.baseUrl}/products/${productId}`;
+    return this.httpClient.get<Product>(url);
+  }
 }
 
 interface GetResponse<T> {

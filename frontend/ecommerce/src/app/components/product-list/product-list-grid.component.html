@@ -1,6 +1,10 @@
 <div class="main-content">
   <div class="section-content section-content-p30">
     <div class="container-fluid">
+      <div *ngIf="currentCategoryName" class="category-title">
+        <h4>{{ currentCategoryName | uppercase }}</h4>
+        <hr />
+      </div>
       <div class="row">
         <div *ngFor="let product of products" class="col-md-3">
           <div class="product-box">

@@ -13,6 +13,7 @@ export class ProductListComponent implements OnInit {
   currentCategoryId: number = 1;
   currentCategoryName: string = '';
   isKeywordSearch: boolean = false;
+  noProductsFound: boolean = false;
 
   constructor(
     private productService: ProductService,
@@ -54,6 +55,7 @@ export class ProductListComponent implements OnInit {
     const keyword: string = this.route.snapshot.paramMap.get('keyword')!;
     this.productService.searchProductsByKeyword(keyword).subscribe((data) => {
       this.products = data;
+      this.noProductsFound = this.products.length === 0;
     });
   }
 }

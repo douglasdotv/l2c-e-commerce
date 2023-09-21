@@ -1,1 +1,21 @@
-<p>product-details works!</p>
+<div class="detail-section" *ngIf="product">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <img [src]="product.imageUrl" [alt]="product.name" class="detail-img" />
+      </div>
+      <div class="col-md-12">
+        <h1>{{ product.name }}</h1>
+        <hr />
+        <p><strong>Description:</strong> {{ product.description }}</p>
+        <p class="price">
+          {{ product.unitPrice | currency : "USD" }}
+        </p>
+        <a href="#" class="primary-btn">Add to cart</a>
+        <div class="mt-5">
+          <a [routerLink]="['/products']">Back to products</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

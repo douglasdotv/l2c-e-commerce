@@ -24,11 +24,6 @@ export class ProductService {
     return this.fetchData<Product>(url, 'products');
   }
 
-  getAllProductCategories(): Observable<ProductCategory[]> {
-    const url = `${this.baseUrl}/product-category`;
-    return this.fetchData<ProductCategory>(url, 'productCategory');
-  }
-
   searchProductsByKeyword(keyword: string): Observable<Product[]> {
     const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}`;
     return this.fetchData<Product>(url, 'products');
@@ -38,10 +33,45 @@ export class ProductService {
     const url = `${this.baseUrl}/products/${productId}`;
     return this.httpClient.get<Product>(url);
   }
+
+  getAllProductCategories(): Observable<ProductCategory[]> {
+    const url = `${this.baseUrl}/product-category`;
+    return this.fetchData<ProductCategory>(url, 'productCategory');
+  }
+
+  getProductsByCategoryIdPaginated(
+    categoryId: number,
+    page: number,
+    pageSize: number
+  ): Observable<GetResponsePaginated<Product>> {
+    const url = `${this.baseUrl}/products/search/findByCategoryId?id=${categoryId}&page=${page}&size=${pageSize}`;
+    return this.httpClient.get<GetResponsePaginated<Product>>(url);
+  }
+
+  searchProductsByKeywordPaginated(
+    keyword: string,
+    page: number,
+    pageSize: number
+  ): Observable<GetResponsePaginated<Product>> {
+    const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}&page=${page}&size=${pageSize}`;
+    return this.httpClient.get<GetResponsePaginated<Product>>(url);
+  }
 }
 
 interface GetResponse<T> {
   _embedded: {
     [key: string]: T[];
+  };
+}
+
+interface GetResponsePaginated<T> {
+  _embedded: {
+    [key: string]: T[];
+  };
+  page: {
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    number: number;
   };
 }

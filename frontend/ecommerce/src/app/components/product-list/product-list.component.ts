@@ -44,23 +44,23 @@ export class ProductListComponent implements OnInit {
     if (hasCategoryId) {
       this.currentCategoryId = +this.route.snapshot.paramMap.get('id')!;
       this.currentCategoryName = this.route.snapshot.paramMap.get('name')!;
+
+      if (this.previousCategoryId !== this.currentCategoryId) {
+        this.currentPage = 1;
+      }
+
+      this.previousCategoryId = this.currentCategoryId;
+
+      this.productService
+        .getProductsByCategoryIdPaginated(
+          this.currentCategoryId,
+          this.currentPage - 1,
+          this.pageSize
+        )
+        .subscribe(this.processResult());
     } else {
-      this.currentCategoryId = 1;
+      this.listAllProducts();
     }
-
-    if (this.previousCategoryId !== this.currentCategoryId) {
-      this.currentPage = 1;
-    }
-
-    this.previousCategoryId = this.currentCategoryId;
-
-    this.productService
-      .getProductsByCategoryIdPaginated(
-        this.currentCategoryId,
-        this.currentPage - 1,
-        this.pageSize
-      )
-      .subscribe(this.processResult());
   }
 
   handleProductSearch() {
@@ -72,6 +72,12 @@ export class ProductListComponent implements OnInit {
         this.currentPage - 1,
         this.pageSize
       )
+      .subscribe(this.processResult());
+  }
+
+  listAllProducts() {
+    this.productService
+      .getAllProductsPaginated(this.currentPage - 1, this.pageSize)
       .subscribe(this.processResult());
   }
 

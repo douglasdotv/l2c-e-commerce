@@ -13,20 +13,30 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) {}
 
-  private fetchData<T>(url: string, key: string): Observable<T[]> {
-    return this.httpClient
-      .get<GetResponse<T>>(url)
-      .pipe(map((response) => response._embedded[key]));
+  getProductsByCategoryIdPaginated(
+    categoryId: number,
+    page: number,
+    pageSize: number
+  ): Observable<EmbeddedDataWithPagination<Product>> {
+    const url = `${this.baseUrl}/products/search/findByCategoryId?id=${categoryId}&page=${page}&size=${pageSize}`;
+    return this.httpClient.get<EmbeddedDataWithPagination<Product>>(url);
   }
 
-  getProductsByCategoryId(categoryId: number): Observable<Product[]> {
-    const url = `${this.baseUrl}/products/search/findByCategoryId?id=${categoryId}`;
-    return this.fetchData<Product>(url, 'products');
+  getAllProductsPaginated(
+    page: number,
+    pageSize: number
+  ): Observable<EmbeddedDataWithPagination<Product>> {
+    const url = `${this.baseUrl}/products?page=${page}&size=${pageSize}`;
+    return this.httpClient.get<EmbeddedDataWithPagination<Product>>(url);
   }
 
-  searchProductsByKeyword(keyword: string): Observable<Product[]> {
-    const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}`;
-    return this.fetchData<Product>(url, 'products');
+  searchProductsByKeywordPaginated(
+    keyword: string,
+    page: number,
+    pageSize: number
+  ): Observable<EmbeddedDataWithPagination<Product>> {
+    const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}&page=${page}&size=${pageSize}`;
+    return this.httpClient.get<EmbeddedDataWithPagination<Product>>(url);
   }
 
   getProduct(productId: number): Observable<Product> {
@@ -36,43 +46,19 @@ export class ProductService {
 
   getAllProductCategories(): Observable<ProductCategory[]> {
     const url = `${this.baseUrl}/product-category`;
-    return this.fetchData<ProductCategory>(url, 'productCategory');
-  }
-
-  getProductsByCategoryIdPaginated(
-    categoryId: number,
-    page: number,
-    pageSize: number
-  ): Observable<GetResponsePaginated<Product>> {
-    const url = `${this.baseUrl}/products/search/findByCategoryId?id=${categoryId}&page=${page}&size=${pageSize}`;
-    return this.httpClient.get<GetResponsePaginated<Product>>(url);
-  }
-
-  searchProductsByKeywordPaginated(
-    keyword: string,
-    page: number,
-    pageSize: number
-  ): Observable<GetResponsePaginated<Product>> {
-    const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}&page=${page}&size=${pageSize}`;
-    return this.httpClient.get<GetResponsePaginated<Product>>(url);
-  }
-
-  getAllProductsPaginated(
-    page: number,
-    pageSize: number
-  ): Observable<GetResponsePaginated<Product>> {
-    const url = `${this.baseUrl}/products?page=${page}&size=${pageSize}`;
-    return this.httpClient.get<GetResponsePaginated<Product>>(url);
+    return this.httpClient
+      .get<EmbeddedData<ProductCategory>>(url)
+      .pipe(map((response) => response._embedded['productCategory']));
   }
 }
 
-interface GetResponse<T> {
+interface EmbeddedData<T> {
   _embedded: {
     [key: string]: T[];
   };
 }
 
-interface GetResponsePaginated<T> {
+interface EmbeddedDataWithPagination<T> {
   _embedded: {
     [key: string]: T[];
   };

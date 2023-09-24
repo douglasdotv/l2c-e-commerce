@@ -56,6 +56,14 @@ export class ProductService {
     const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}&page=${page}&size=${pageSize}`;
     return this.httpClient.get<GetResponsePaginated<Product>>(url);
   }
+
+  getAllProductsPaginated(
+    page: number,
+    pageSize: number
+  ): Observable<GetResponsePaginated<Product>> {
+    const url = `${this.baseUrl}/products?page=${page}&size=${pageSize}`;
+    return this.httpClient.get<GetResponsePaginated<Product>>(url);
+  }
 }
 
 interface GetResponse<T> {

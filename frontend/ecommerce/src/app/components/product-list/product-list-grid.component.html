@@ -39,6 +39,8 @@
               [(page)]="currentPage"
               [pageSize]="pageSize"
               [collectionSize]="totalElements"
+              [maxSize]="5"
+              [boundaryLinks]="true"
               (pageChange)="listProducts()"
             ></ngb-pagination>
           </div>

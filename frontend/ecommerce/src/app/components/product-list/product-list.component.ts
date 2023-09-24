@@ -11,9 +11,13 @@ import { ActivatedRoute } from '@angular/router';
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
   currentCategoryId: number = 1;
+  previousCategoryId: number = 1;
   currentCategoryName: string = '';
   isKeywordSearch: boolean = false;
   noProductsFound: boolean = false;
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalElements: number = 0;
 
   constructor(
     private productService: ProductService,
@@ -44,18 +48,39 @@ export class ProductListComponent implements OnInit {
       this.currentCategoryId = 1;
     }
 
+    if (this.previousCategoryId !== this.currentCategoryId) {
+      this.currentPage = 1;
+    }
+
+    this.previousCategoryId = this.currentCategoryId;
+
     this.productService
-      .getProductsByCategoryId(this.currentCategoryId)
+      .getProductsByCategoryIdPaginated(
+        this.currentCategoryId,
+        this.currentPage - 1,
+        this.pageSize
+      )
       .subscribe((data) => {
-        this.products = data;
+        this.products = data._embedded['products'];
+        this.currentPage = data.page.number + 1;
+        this.pageSize = data.page.size;
+        this.totalElements = data.page.totalElements;
       });
   }
 
   handleProductSearch() {
     const keyword: string = this.route.snapshot.paramMap.get('keyword')!;
-    this.productService.searchProductsByKeyword(keyword).subscribe((data) => {
-      this.products = data;
-      this.noProductsFound = this.products.length === 0;
-    });
+    this.productService
+      .searchProductsByKeywordPaginated(
+        keyword,
+        this.currentPage - 1,
+        this.pageSize
+      )
+      .subscribe((data) => {
+        this.products = data._embedded['products'];
+        this.currentPage = data.page.number + 1;
+        this.pageSize = data.page.size;
+        this.totalElements = data.page.totalElements;
+      });
   }
 }

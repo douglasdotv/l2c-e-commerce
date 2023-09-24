@@ -60,28 +60,28 @@ export class ProductListComponent implements OnInit {
         this.currentPage - 1,
         this.pageSize
       )
-      .subscribe((data) => {
-        this.products = data._embedded['products'];
-        this.currentPage = data.page.number + 1;
-        this.pageSize = data.page.size;
-        this.totalElements = data.page.totalElements;
-      });
+      .subscribe(this.processResult());
   }
 
   handleProductSearch() {
     const keyword: string = this.route.snapshot.paramMap.get('keyword')!;
+
     this.productService
       .searchProductsByKeywordPaginated(
         keyword,
         this.currentPage - 1,
         this.pageSize
       )
-      .subscribe((data) => {
-        this.products = data._embedded['products'];
-        this.currentPage = data.page.number + 1;
-        this.pageSize = data.page.size;
-        this.totalElements = data.page.totalElements;
-      });
+      .subscribe(this.processResult());
+  }
+
+  private processResult() {
+    return (data: any) => {
+      this.products = data._embedded.products;
+      this.currentPage = data.page.number + 1;
+      this.pageSize = data.page.size;
+      this.totalElements = data.page.totalElements;
+    };
   }
 
   updatePageSize(pageSize: string) {

@@ -137,6 +137,10 @@ aside.menu-sidebar.d-none.d-lg-block.clr {
   box-shadow: -2px 0 4px #0000003b;
 }
 
+.hidden-caption {
+  visibility: hidden;
+}
+
 /*
  * ----------------------------
  * Header Desktop Section

@@ -1,1 +1,40 @@
-<p>cart-details works!</p>
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fluid">
+      <table class="table table-bordered">
+        <caption class="hidden-caption">
+          Cart Details
+        </caption>
+        <tr>
+          <th class="w-25 p-3">Product Image</th>
+          <th class="w-50 p-3">Product Name</th>
+          <th class="w-25 p-3"></th>
+        </tr>
+        <tbody>
+          <tr *ngFor="let cartItem of cartItems">
+            <td>
+              <img [src]="cartItem.imageUrl" [alt]="cartItem.name" />
+            </td>
+            <td>
+              {{ cartItem.name }} <br />
+              {{ cartItem.unitPrice | currency : "USD" }}
+            </td>
+            <td>
+              Amount: {{ cartItem.quantity }} <br />
+              Subtotal:
+              {{ cartItem.quantity * cartItem.unitPrice | currency : "USD" }}
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2"></td>
+            <td class="text-right fw-bold">
+              Total items: {{ totalQuantity }} <br />
+              Total price: {{ totalPrice | currency : "USD" }} <br />
+              Shipping: FREE
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

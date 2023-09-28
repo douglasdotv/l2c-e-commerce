@@ -21,9 +21,30 @@
                 {{ cartItem.unitPrice | currency : "USD" }}
               </td>
               <td>
-                Amount: {{ cartItem.quantity }} <br />
+                Amount:
+                <button
+                  (click)="decrementQuantity(cartItem)"
+                  class="btn btn-primary btn-sm"
+                >
+                  <i class="fas fa-minus"></i>
+                </button>
+                {{ cartItem.quantity }}
+                <button
+                  (click)="incrementQuantity(cartItem)"
+                  class="btn btn-primary btn-sm"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+                <br />
                 Subtotal:
                 {{ cartItem.quantity * cartItem.unitPrice | currency : "USD" }}
+                <br />
+                <button
+                  (click)="removeFromCart(cartItem)"
+                  class="btn btn-primary btn-sm mt-2"
+                >
+                  Remove
+                </button>
               </td>
             </tr>
             <tr>

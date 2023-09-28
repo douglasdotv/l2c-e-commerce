@@ -25,7 +25,7 @@ export class ProductDetailsComponent implements OnInit {
     });
   }
 
-  private handleProductDetails() {
+  private handleProductDetails(): void {
     const productId = +this.route.snapshot.paramMap.get('id')!;
 
     this.productService.getProduct(productId).subscribe((product) => {
@@ -33,7 +33,7 @@ export class ProductDetailsComponent implements OnInit {
     });
   }
 
-  addToCart() {
+  addToCart(): void {
     this.cartService.addToCart(new CartItem(this.product));
   }
 }

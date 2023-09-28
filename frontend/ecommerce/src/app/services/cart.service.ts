@@ -11,7 +11,7 @@ export class CartService {
   totalPrice: Subject<number> = new Subject<number>();
   totalQuantity: Subject<number> = new Subject<number>();
 
-  addToCart(cartItem: CartItem) {
+  addToCart(cartItem: CartItem): void {
     let alreadyExistsInCart: boolean = false;
     let existingCartItem: CartItem | undefined = undefined;
 
@@ -29,7 +29,7 @@ export class CartService {
     this.getCartTotals();
   }
 
-  getCartTotals() {
+  getCartTotals(): void {
     let totalPriceValue: number = 0;
     let totalQuantityValue: number = 0;
 
@@ -42,12 +42,12 @@ export class CartService {
     this.totalQuantity.next(totalQuantityValue);
   }
 
-  incrementQuantity(cartItem: CartItem) {
+  incrementQuantity(cartItem: CartItem): void {
     cartItem.quantity++;
     this.getCartTotals();
   }
 
-  decrementQuantity(cartItem: CartItem) {
+  decrementQuantity(cartItem: CartItem): void {
     cartItem.quantity--;
 
     if (cartItem.quantity === 0) {
@@ -57,7 +57,7 @@ export class CartService {
     }
   }
 
-  removeFromCart(cartItem: CartItem) {
+  removeFromCart(cartItem: CartItem): void {
     const itemIndex = this.cartItems.findIndex(
       (item) => item.id === cartItem.id
     );

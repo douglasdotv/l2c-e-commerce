@@ -33,7 +33,7 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  listProducts() {
+  listProducts(): void {
     this.isKeywordSearch = this.route.snapshot.paramMap.has('keyword');
 
     this.isKeywordSearch
@@ -41,7 +41,7 @@ export class ProductListComponent implements OnInit {
       : this.handleProductList();
   }
 
-  handleProductList() {
+  handleProductList(): void {
     const hasCategoryId: boolean = this.route.snapshot.paramMap.has('id');
 
     if (hasCategoryId) {
@@ -66,7 +66,7 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  handleProductSearch() {
+  handleProductSearch(): void {
     const keyword: string = this.route.snapshot.paramMap.get('keyword')!;
 
     this.productService
@@ -78,13 +78,13 @@ export class ProductListComponent implements OnInit {
       .subscribe(this.processResult());
   }
 
-  listAllProducts() {
+  listAllProducts(): void {
     this.productService
       .getAllProductsPaginated(this.currentPage - 1, this.pageSize)
       .subscribe(this.processResult());
   }
 
-  private processResult() {
+  private processResult(): (data: any) => void {
     return (data: any) => {
       this.products = data._embedded.products;
       this.noProductsFound = this.products.length === 0;
@@ -94,13 +94,13 @@ export class ProductListComponent implements OnInit {
     };
   }
 
-  updatePageSize(pageSize: string) {
+  updatePageSize(pageSize: string): void {
     this.pageSize = +pageSize;
     this.currentPage = 1;
     this.listProducts();
   }
 
-  addToCart(product: Product) {
+  addToCart(product: Product): void {
     this.cartService.addToCart(new CartItem(product));
   }
 }

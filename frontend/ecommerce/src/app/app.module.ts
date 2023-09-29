@@ -12,6 +12,7 @@ import { SearchFormComponent } from './components/search-form/search-form.compon
 import { ProductDetailsComponent } from './components/product-details/product-details.component';
 import { CartStatusComponent } from './components/cart-status/cart-status.component';
 import { CartDetailsComponent } from './components/cart-details/cart-details.component';
+import { CheckoutComponent } from './components/checkout/checkout.component';
 
 const routes: Routes = [
   { path: 'search/:keyword', component: ProductListComponent },
@@ -32,7 +33,8 @@ const routes: Routes = [
     SearchFormComponent,
     ProductDetailsComponent,
     CartStatusComponent,
-    CartDetailsComponent
+    CartDetailsComponent,
+    CheckoutComponent
   ],
   imports: [
     BrowserModule,

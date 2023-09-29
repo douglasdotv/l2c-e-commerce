@@ -37,6 +37,13 @@ export class CheckoutComponent implements OnInit {
         street: [''],
         zipCode: [''],
       }),
+      billingAddress: this.formBuilder.group({
+        country: ['Brazil'],
+        state: [''],
+        city: [''],
+        street: [''],
+        zipCode: [''],
+      }),
     });
   }
 

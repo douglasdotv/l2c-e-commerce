@@ -53,6 +53,13 @@
                 Total items: {{ totalQuantity }} <br />
                 Total price: {{ totalPrice | currency : "USD" }} <br />
                 Shipping: FREE
+                <br />
+                <a
+                  [routerLink]="['/checkout']"
+                  class="btn btn-primary btn-sm mt-2"
+                >
+                  Checkout
+                </a>
               </td>
             </tr>
           </tbody>

@@ -20,6 +20,7 @@ export class CheckoutComponent implements OnInit {
     'Malaysia',
     'Singapore',
   ];
+  cardTypes: string[] = ['Visa', 'MasterCard', 'American Express'];
   defaultAddress!: any;
 
   constructor(private formBuilder: FormBuilder) {}
@@ -44,6 +45,14 @@ export class CheckoutComponent implements OnInit {
         city: [''],
         street: [''],
         zipCode: [''],
+      }),
+      creditCardDetails: this.formBuilder.group({
+        cardType: ['Visa'],
+        nameOnCard: [''],
+        cardNumber: [''],
+        securityCode: [''],
+        expirationMonth: [''],
+        expirationYear: [''],
       }),
     });
     this.defaultAddress =

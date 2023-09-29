@@ -20,6 +20,7 @@ export class CheckoutComponent implements OnInit {
     'Malaysia',
     'Singapore',
   ];
+  defaultAddress!: any;
 
   constructor(private formBuilder: FormBuilder) {}
 
@@ -45,10 +46,24 @@ export class CheckoutComponent implements OnInit {
         zipCode: [''],
       }),
     });
+    this.defaultAddress =
+      this.checkoutFormGroup.controls['billingAddress'].value;
   }
 
   onSubmit(): void {
     // TODO: do checkout process here
     console.log(this.checkoutFormGroup.get('customer')?.value);
+  }
+
+  copyShippingAddressToBillingAddress(event: any): void {
+    if (event.target.checked) {
+      this.checkoutFormGroup.controls['billingAddress'].setValue(
+        this.checkoutFormGroup.controls['shippingAddress'].value
+      );
+    } else {
+      this.checkoutFormGroup.controls['billingAddress'].setValue(
+        this.defaultAddress
+      );
+    }
   }
 }

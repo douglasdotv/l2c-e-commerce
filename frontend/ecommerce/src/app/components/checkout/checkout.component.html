@@ -76,6 +76,12 @@
             </div>
           </div>
         </fieldset>
+        <div class="input-space">
+          <label class="au-checkbox">
+            <input type="checkbox" (change)="copyShippingAddressToBillingAddress($event)">
+            <span class="au-checkmark"></span> Billing address same as shipping address
+          </label>
+        </div>
         <fieldset formGroupName="billingAddress" class="form-area">
           <legend class="fw-bold mb-4">Billing Address</legend>
           <div class="row">

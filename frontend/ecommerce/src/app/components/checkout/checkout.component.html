@@ -1,1 +1,38 @@
-<p>checkout works!</p>
+<div class="main-content page-m">
+  <div class="section-content section-content-p30">
+    <div class="container-fluid">
+      <form [formGroup]="checkoutFormGroup">
+        <fieldset formGroupName="customer" class="form-area">
+          <legend class="fw-bold mb-4">Customer</legend>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="firstName">First name: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="firstName" formControlName="firstName" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="lastName">Last name: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="lastName" formControlName="lastName" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="email">E-mail: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="email" formControlName="email" />
+            </div>
+          </div>
+        </fieldset>
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary mb-3">Purchase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

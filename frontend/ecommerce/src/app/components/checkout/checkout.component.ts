@@ -20,4 +20,9 @@ export class CheckoutComponent implements OnInit {
       }),
     });
   }
+
+  onSubmit(): void {
+    // TODO: do checkout process here
+    console.log(this.checkoutFormGroup.get('customer')?.value);
+  }
 }

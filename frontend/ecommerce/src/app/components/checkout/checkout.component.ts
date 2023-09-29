@@ -8,6 +8,18 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 })
 export class CheckoutComponent implements OnInit {
   checkoutFormGroup!: FormGroup;
+  countries: string[] = [
+    'Brazil',
+    'Canada',
+    'Germany',
+    'Japan',
+    'Sweden',
+    'Mexico',
+    'South Korea',
+    'China',
+    'Malaysia',
+    'Singapore',
+  ];
 
   constructor(private formBuilder: FormBuilder) {}
 
@@ -17,6 +29,13 @@ export class CheckoutComponent implements OnInit {
         firstName: [''],
         lastName: [''],
         email: [''],
+      }),
+      shippingAddress: this.formBuilder.group({
+        country: ['Brazil'],
+        state: [''],
+        city: [''],
+        street: [''],
+        zipCode: [''],
       }),
     });
   }

@@ -29,6 +29,53 @@
             </div>
           </div>
         </fieldset>
+        <fieldset formGroupName="shippingAddress" class="form-area">
+          <legend class="fw-bold mb-4">Shipping Address</legend>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="country">Country: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <select id="country" formControlName="country">
+                <option *ngFor="let country of countries" [value]="country">
+                  {{ country }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="state">State: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="state" formControlName="state" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="city">City: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="city" formControlName="city" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="street">Street: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="street" formControlName="street" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="zipCode">Zip code: </label>
+            </div>
+            <div class="col-md-9 input-space">
+              <input type="text" id="zipCode" formControlName="zipCode" />
+            </div>
+          </div>
+        </fieldset>
         <div class="text-center">
           <button type="submit" class="btn btn-primary mb-3">Purchase</button>
         </div>

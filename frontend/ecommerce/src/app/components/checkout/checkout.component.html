@@ -180,11 +180,11 @@
               <label for="expirationMonth">Expiration month: </label>
             </div>
             <div class="col-md-9 input-space">
-              <input
-                type="text"
-                id="expirationMonth"
-                formControlName="expirationMonth"
-              />
+              <select id="expirationMonth" formControlName="expirationMonth">
+                <option *ngFor="let month of cardMonths" [value]="month">
+                  {{ month }}
+                </option>
+              </select>
             </div>
           </div>
           <div class="row">
@@ -192,11 +192,11 @@
               <label for="expirationYear">Expiration year: </label>
             </div>
             <div class="col-md-9 input-space">
-              <input
-                type="text"
-                id="expirationYear"
-                formControlName="expirationYear"
-              />
+              <select id="expirationYear" formControlName="expirationYear">
+                <option *ngFor="let year of cardYears" [value]="year">
+                  {{ year }}
+                </option>
+              </select>
             </div>
           </div>
         </fieldset>

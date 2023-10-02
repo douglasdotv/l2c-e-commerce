@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Country } from 'src/app/common/country';
+import { State } from 'src/app/common/state';
 import { CheckoutFormService } from 'src/app/services/checkout-form.service';
 
 @Component({
@@ -9,19 +11,8 @@ import { CheckoutFormService } from 'src/app/services/checkout-form.service';
 })
 export class CheckoutComponent implements OnInit {
   checkoutFormGroup!: FormGroup;
-  defaultAddress!: any;
-  countries: string[] = [
-    'Brazil',
-    'Canada',
-    'Germany',
-    'Japan',
-    'Sweden',
-    'Mexico',
-    'South Korea',
-    'China',
-    'Malaysia',
-    'Singapore',
-  ];
+  countries: Country[] = [];
+  states: State[] = [];
   cardTypes: string[] = ['Visa', 'MasterCard', 'American Express'];
   cardMonths: number[] = [];
   cardYears: number[] = [];
@@ -34,6 +25,9 @@ export class CheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    /**
+     * Form groups and form controls
+     */
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: [''],
@@ -41,14 +35,14 @@ export class CheckoutComponent implements OnInit {
         email: [''],
       }),
       shippingAddress: this.formBuilder.group({
-        country: ['Brazil'],
+        country: [''],
         state: [''],
         city: [''],
         street: [''],
         zipCode: [''],
       }),
       billingAddress: this.formBuilder.group({
-        country: ['Brazil'],
+        country: [''],
         state: [''],
         city: [''],
         street: [''],
@@ -64,9 +58,9 @@ export class CheckoutComponent implements OnInit {
       }),
     });
 
-    this.defaultAddress =
-      this.checkoutFormGroup.controls['billingAddress'].value;
-
+    /**
+     * Populate months and years
+     */
     this.formService
       .getCreditCardMonths(this.currentMonth)
       .subscribe((months) => {
@@ -77,6 +71,7 @@ export class CheckoutComponent implements OnInit {
             ?.setValue(this.cardMonths[0]);
         }
       });
+
     this.formService.getCreditCardYears().subscribe((years) => {
       this.cardYears = years;
       if (this.cardYears.length > 0) {
@@ -85,11 +80,45 @@ export class CheckoutComponent implements OnInit {
           ?.setValue(this.cardYears[0]);
       }
     });
+
+    /**
+     * Populate countries and states
+     * By default, the first country in the list is selected
+     * Then, the states of the selected country are populated and the first state in the list is selected
+     */
+    this.formService.getCountries().subscribe((countries) => {
+      this.countries = countries;
+
+      if (this.countries.length > 0) {
+        this.checkoutFormGroup
+          .get('shippingAddress.country')
+          ?.setValue(this.countries[0]);
+
+        this.checkoutFormGroup
+          .get('billingAddress.country')
+          ?.setValue(this.countries[0]);
+
+        this.formService
+          .getStatesByCountryCode(this.countries[0].code)
+          .subscribe((states) => {
+            this.states = states;
+
+            if (this.states.length > 0) {
+              this.checkoutFormGroup
+                .get('shippingAddress.state')
+                ?.setValue(this.states[0]);
+
+              this.checkoutFormGroup
+                .get('billingAddress.state')
+                ?.setValue(this.states[0]);
+            }
+          });
+      }
+    });
   }
 
   onSubmit(): void {
-    // TODO: do checkout process here
-    console.log(this.checkoutFormGroup.get('customer')?.value);
+    // Checkout logic goes here. Coming soon…
   }
 
   copyShippingAddressToBillingAddress(event: any): void {
@@ -98,9 +127,7 @@ export class CheckoutComponent implements OnInit {
         this.checkoutFormGroup.controls['shippingAddress'].value
       );
     } else {
-      this.checkoutFormGroup.controls['billingAddress'].setValue(
-        this.defaultAddress
-      );
+      this.checkoutFormGroup.controls['billingAddress'].reset();
     }
   }
 
@@ -110,8 +137,8 @@ export class CheckoutComponent implements OnInit {
     );
 
     /**
-     * startMonth is January by default.
-     * If the current year equals the selected year, then startMonth is the current month.
+     * startMonth is January by default
+     * If the current year equals the selected year, then startMonth is the current month
      */
     let startMonth: number = 1;
     if (this.currentYear === selectedYear) {

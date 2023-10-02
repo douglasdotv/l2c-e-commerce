@@ -4,6 +4,8 @@ import { Product } from '../common/product';
 import { ProductCategory } from '../common/product-category';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { EmbeddedData } from '../common/embedded-data';
+import { EmbeddedDataWithPagination } from '../common/embedded-data-with-pagination';
 
 @Injectable({
   providedIn: 'root',
@@ -50,22 +52,4 @@ export class ProductService {
       .get<EmbeddedData<ProductCategory>>(url)
       .pipe(map((response) => response._embedded['productCategories']));
   }
-}
-
-interface EmbeddedData<T> {
-  _embedded: {
-    [key: string]: T[];
-  };
-}
-
-interface EmbeddedDataWithPagination<T> {
-  _embedded: {
-    [key: string]: T[];
-  };
-  page: {
-    size: number;
-    totalElements: number;
-    totalPages: number;
-    number: number;
-  };
 }

@@ -3,6 +3,7 @@ import { Observable, of, map } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Country } from '../common/country';
 import { State } from '../common/state';
+import { EmbeddedData } from '../common/embedded-data';
 
 @Injectable({
   providedIn: 'root',
@@ -53,10 +54,4 @@ export class CheckoutFormService {
       })
     );
   }
-}
-
-interface EmbeddedData<T> {
-  _embedded: {
-    [key: string]: T[];
-  };
 }

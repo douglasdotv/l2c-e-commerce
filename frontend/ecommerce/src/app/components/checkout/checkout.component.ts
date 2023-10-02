@@ -12,7 +12,8 @@ import { CheckoutFormService } from 'src/app/services/checkout-form.service';
 export class CheckoutComponent implements OnInit {
   checkoutFormGroup!: FormGroup;
   countries: Country[] = [];
-  states: State[] = [];
+  shippingAddressStates: State[] = [];
+  billingAddressStates: State[] = [];
   cardTypes: string[] = ['Visa', 'MasterCard', 'American Express'];
   cardMonths: number[] = [];
   cardYears: number[] = [];
@@ -101,19 +102,57 @@ export class CheckoutComponent implements OnInit {
         this.formService
           .getStatesByCountryCode(this.countries[0].code)
           .subscribe((states) => {
-            this.states = states;
+            this.shippingAddressStates = states;
+            this.billingAddressStates = states;
 
-            if (this.states.length > 0) {
+            if (states.length > 0) {
               this.checkoutFormGroup
                 .get('shippingAddress.state')
-                ?.setValue(this.states[0]);
+                ?.setValue(this.shippingAddressStates[0]);
 
               this.checkoutFormGroup
                 .get('billingAddress.state')
-                ?.setValue(this.states[0]);
+                ?.setValue(this.billingAddressStates[0]);
             }
           });
       }
+
+      /**
+       * Listen to country changes
+       * When the country changes, the states of the selected country are populated
+       * and the first state in the list is selected
+       */
+      this.checkoutFormGroup
+        .get('shippingAddress.country')
+        ?.valueChanges.subscribe((value) => {
+          this.formService
+            .getStatesByCountryCode(value.code)
+            .subscribe((states) => {
+              this.shippingAddressStates = states;
+
+              if (states.length > 0) {
+                this.checkoutFormGroup
+                  .get('shippingAddress.state')
+                  ?.setValue(this.shippingAddressStates[0]);
+              }
+            });
+        });
+
+      this.checkoutFormGroup
+        .get('billingAddress.country')
+        ?.valueChanges.subscribe((value) => {
+          this.formService
+            .getStatesByCountryCode(value.code)
+            .subscribe((states) => {
+              this.billingAddressStates = states;
+
+              if (states.length > 0) {
+                this.checkoutFormGroup
+                  .get('billingAddress.state')
+                  ?.setValue(this.billingAddressStates[0]);
+              }
+            });
+        });
     });
   }
 

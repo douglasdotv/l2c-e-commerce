@@ -25,6 +25,7 @@ public class Country {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "country")
+    @JsonIgnore
     private Set<State> states;
 
 }

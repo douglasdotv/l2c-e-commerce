@@ -6,12 +6,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EmbeddedData } from '../common/embedded-data';
 import { EmbeddedDataWithPagination } from '../common/embedded-data-with-pagination';
+import { API_CONFIG } from '../config/api-config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseApiUrl: string = API_CONFIG.baseUrl;
 
   constructor(private httpClient: HttpClient) {}
 
@@ -20,7 +21,7 @@ export class ProductService {
     page: number,
     pageSize: number
   ): Observable<EmbeddedDataWithPagination<Product>> {
-    const url = `${this.baseUrl}/products/search/findByCategoryId?id=${categoryId}&page=${page}&size=${pageSize}`;
+    const url = `${this.baseApiUrl}/products/search/findByCategoryId?id=${categoryId}&page=${page}&size=${pageSize}`;
     return this.httpClient.get<EmbeddedDataWithPagination<Product>>(url);
   }
 
@@ -28,7 +29,7 @@ export class ProductService {
     page: number,
     pageSize: number
   ): Observable<EmbeddedDataWithPagination<Product>> {
-    const url = `${this.baseUrl}/products?page=${page}&size=${pageSize}`;
+    const url = `${this.baseApiUrl}/products?page=${page}&size=${pageSize}`;
     return this.httpClient.get<EmbeddedDataWithPagination<Product>>(url);
   }
 
@@ -37,17 +38,17 @@ export class ProductService {
     page: number,
     pageSize: number
   ): Observable<EmbeddedDataWithPagination<Product>> {
-    const url = `${this.baseUrl}/products/search/findByNameContaining?name=${keyword}&page=${page}&size=${pageSize}`;
+    const url = `${this.baseApiUrl}/products/search/findByNameContaining?name=${keyword}&page=${page}&size=${pageSize}`;
     return this.httpClient.get<EmbeddedDataWithPagination<Product>>(url);
   }
 
   getProduct(productId: number): Observable<Product> {
-    const url = `${this.baseUrl}/products/${productId}`;
+    const url = `${this.baseApiUrl}/products/${productId}`;
     return this.httpClient.get<Product>(url);
   }
 
   getAllProductCategories(): Observable<ProductCategory[]> {
-    const url = `${this.baseUrl}/product-categories`;
+    const url = `${this.baseApiUrl}/product-categories`;
     return this.httpClient
       .get<EmbeddedData<ProductCategory>>(url)
       .pipe(map((response) => response._embedded['productCategories']));

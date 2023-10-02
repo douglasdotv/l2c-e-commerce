@@ -209,7 +209,6 @@
               <select
                 id="expirationYear"
                 formControlName="expirationYear"
-                (change)="handleMonthsAndYears()"
               >
                 <option *ngFor="let year of cardYears" [value]="year">
                   {{ year }}

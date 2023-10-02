@@ -17,8 +17,8 @@ export class CheckoutComponent implements OnInit {
   cardTypes: string[] = ['Visa', 'MasterCard', 'American Express'];
   cardMonths: number[] = [];
   cardYears: number[] = [];
-  currentMonth = new Date().getMonth() + 1;
-  currentYear = new Date().getFullYear();
+  currentMonth: number = new Date().getMonth() + 1;
+  currentYear: number = new Date().getFullYear();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,6 +26,13 @@ export class CheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.initializeCheckoutForm();
+    this.populateCardDates();
+    this.populateCountriesAndStates();
+    this.setupValueChangeListeners();
+  }
+
+  initializeCheckoutForm(): void {
     /**
      * Form groups and form controls
      */
@@ -58,106 +65,126 @@ export class CheckoutComponent implements OnInit {
         expirationYear: [''],
       }),
     });
+  }
 
-    /**
-     * Populate months and years
-     */
+  /**
+   * Populate credit card expiration months and years in the checkout form
+   * By default, the current month and year are selected
+   */
+  populateCardDates(): void {
+    this.populateCardMonths();
+    this.populateCardYears();
+  }
+
+  populateCardMonths(): void {
     this.formService
       .getCreditCardMonths(this.currentMonth)
       .subscribe((months) => {
         this.cardMonths = months;
-        if (this.cardMonths.length > 0) {
-          this.checkoutFormGroup
-            .get('creditCardDetails.expirationMonth')
-            ?.setValue(this.cardMonths[0]);
-        }
+        this.checkoutFormGroup
+          .get('creditCardDetails.expirationMonth')
+          ?.setValue(this.cardMonths[0]);
       });
+  }
 
+  populateCardYears(): void {
     this.formService.getCreditCardYears().subscribe((years) => {
       this.cardYears = years;
-      if (this.cardYears.length > 0) {
-        this.checkoutFormGroup
-          .get('creditCardDetails.expirationYear')
-          ?.setValue(this.cardYears[0]);
-      }
-    });
-
-    /**
-     * Populate countries and states
-     * By default, the first country in the list is selected
-     * Then, the states of the selected country are populated and the first state in the list is selected
-     */
-    this.formService.getCountries().subscribe((countries) => {
-      this.countries = countries;
-
-      if (this.countries.length > 0) {
-        this.checkoutFormGroup
-          .get('shippingAddress.country')
-          ?.setValue(this.countries[0]);
-
-        this.checkoutFormGroup
-          .get('billingAddress.country')
-          ?.setValue(this.countries[0]);
-
-        this.formService
-          .getStatesByCountryCode(this.countries[0].code)
-          .subscribe((states) => {
-            this.shippingAddressStates = states;
-            this.billingAddressStates = states;
-
-            if (states.length > 0) {
-              this.checkoutFormGroup
-                .get('shippingAddress.state')
-                ?.setValue(this.shippingAddressStates[0]);
-
-              this.checkoutFormGroup
-                .get('billingAddress.state')
-                ?.setValue(this.billingAddressStates[0]);
-            }
-          });
-      }
-
-      /**
-       * Listen to country changes
-       * When the country changes, the states of the selected country are populated
-       * and the first state in the list is selected
-       */
       this.checkoutFormGroup
-        .get('shippingAddress.country')
-        ?.valueChanges.subscribe((value) => {
-          this.formService
-            .getStatesByCountryCode(value.code)
-            .subscribe((states) => {
-              this.shippingAddressStates = states;
-
-              if (states.length > 0) {
-                this.checkoutFormGroup
-                  .get('shippingAddress.state')
-                  ?.setValue(this.shippingAddressStates[0]);
-              }
-            });
-        });
-
-      this.checkoutFormGroup
-        .get('billingAddress.country')
-        ?.valueChanges.subscribe((value) => {
-          this.formService
-            .getStatesByCountryCode(value.code)
-            .subscribe((states) => {
-              this.billingAddressStates = states;
-
-              if (states.length > 0) {
-                this.checkoutFormGroup
-                  .get('billingAddress.state')
-                  ?.setValue(this.billingAddressStates[0]);
-              }
-            });
-        });
+        .get('creditCardDetails.expirationYear')
+        ?.setValue(this.currentYear);
     });
   }
 
-  onSubmit(): void {
-    // Checkout logic goes here. Coming soon…
+  /**
+   * Populate countries and states
+   * By default, the first country in the list is selected
+   * Then, the states of the selected country are populated and the first state in the list is selected
+   */
+  populateCountriesAndStates(): void {
+    this.populateCountries();
+  }
+
+  populateCountries(): void {
+    this.formService.getCountries().subscribe((countries) => {
+      this.countries = countries;
+      const defaultCountry = this.countries[0];
+      this.checkoutFormGroup
+        .get('shippingAddress.country')
+        ?.setValue(defaultCountry);
+      this.checkoutFormGroup
+        .get('billingAddress.country')
+        ?.setValue(defaultCountry);
+      this.updateStatesForCountry(defaultCountry, 'shippingAddress');
+      this.updateStatesForCountry(defaultCountry, 'billingAddress');
+    });
+  }
+
+  updateStatesForCountry(country: Country | null, addressType: string): void {
+    if (!country) {
+      return;
+    }
+
+    this.formService
+      .getStatesByCountryCode(country.code)
+      .subscribe((states) => {
+        if (addressType === 'shippingAddress') {
+          this.shippingAddressStates = states;
+          this.checkoutFormGroup
+            .get('shippingAddress.state')
+            ?.setValue(this.shippingAddressStates[0]);
+        } else {
+          this.billingAddressStates = states;
+          this.checkoutFormGroup
+            .get('billingAddress.state')
+            ?.setValue(this.billingAddressStates[0]);
+        }
+      });
+  }
+
+  /**
+   * Listen to value changes in the checkout form
+   * When the country changes, the states are updated
+   * When the credit card expiration year changes, the months are updated
+   */
+  setupValueChangeListeners(): void {
+    this.setupCountryChangeListeners();
+    this.setupDateChangeListeners();
+  }
+
+  setupCountryChangeListeners(): void {
+    this.checkoutFormGroup
+      .get('shippingAddress.country')
+      ?.valueChanges.subscribe((country) => {
+        this.updateStatesForCountry(country, 'shippingAddress');
+      });
+
+    this.checkoutFormGroup
+      .get('billingAddress.country')
+      ?.valueChanges.subscribe((country) => {
+        this.updateStatesForCountry(country, 'billingAddress');
+      });
+  }
+
+  setupDateChangeListeners(): void {
+    this.checkoutFormGroup
+      .get('creditCardDetails.expirationYear')
+      ?.valueChanges.subscribe((year) => {
+        this.updateCardExpirationMonths(Number(year));
+      });
+  }
+
+  updateCardExpirationMonths(selectedYear: number): void {
+    const january: number = 1;
+    const startMonth: number =
+      selectedYear === this.currentYear ? this.currentMonth : january;
+
+    this.formService.getCreditCardMonths(startMonth).subscribe((months) => {
+      this.cardMonths = months;
+      this.checkoutFormGroup
+        .get('creditCardDetails.expirationMonth')
+        ?.setValue(this.cardMonths[0]);
+    });
   }
 
   copyShippingAddressToBillingAddress(event: any): void {
@@ -170,28 +197,7 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  handleMonthsAndYears(): void {
-    const selectedYear: number = Number(
-      this.checkoutFormGroup.get('creditCardDetails')?.value.expirationYear
-    );
-
-    /**
-     * startMonth is January by default
-     * If the current year equals the selected year, then startMonth is the current month
-     */
-    let startMonth: number = 1;
-    if (this.currentYear === selectedYear) {
-      startMonth = this.currentMonth;
-    }
-
-    this.formService
-      .getCreditCardMonths(startMonth)
-      .subscribe((months) => (this.cardMonths = months));
-
-    if (this.currentYear === selectedYear && this.cardMonths.length > 0) {
-      this.checkoutFormGroup
-        .get('creditCardDetails.expirationMonth')
-        ?.setValue(this.cardMonths[0]);
-    }
+  onSubmit(): void {
+    // Checkout logic goes here. Coming soon…
   }
 }

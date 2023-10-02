@@ -7,11 +7,10 @@ import { Injectable } from '@angular/core';
 export class CheckoutFormService {
   private readonly EXPIRATION_YEAR_RANGE: number = 10;
 
-  getCreditCardMonths(): Observable<number[]> {
+  getCreditCardMonths(startMonth: number): Observable<number[]> {
     const months: number[] = [];
-    const currentMonth: number = new Date().getMonth() + 1;
 
-    for (let month = currentMonth; month <= 12; ++month) {
+    for (let month = startMonth; month <= 12; ++month) {
       months.push(month);
     }
 

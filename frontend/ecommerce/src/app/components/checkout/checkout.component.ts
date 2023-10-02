@@ -25,6 +25,8 @@ export class CheckoutComponent implements OnInit {
   cardTypes: string[] = ['Visa', 'MasterCard', 'American Express'];
   cardMonths: number[] = [];
   cardYears: number[] = [];
+  currentMonth = new Date().getMonth() + 1;
+  currentYear = new Date().getFullYear();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -65,14 +67,16 @@ export class CheckoutComponent implements OnInit {
     this.defaultAddress =
       this.checkoutFormGroup.controls['billingAddress'].value;
 
-    this.formService.getCreditCardMonths().subscribe((months) => {
-      this.cardMonths = months;
-      if (this.cardMonths.length > 0) {
-        this.checkoutFormGroup
-          .get('creditCardDetails.expirationMonth')
-          ?.setValue(this.cardMonths[0]);
-      }
-    });
+    this.formService
+      .getCreditCardMonths(this.currentMonth)
+      .subscribe((months) => {
+        this.cardMonths = months;
+        if (this.cardMonths.length > 0) {
+          this.checkoutFormGroup
+            .get('creditCardDetails.expirationMonth')
+            ?.setValue(this.cardMonths[0]);
+        }
+      });
     this.formService.getCreditCardYears().subscribe((years) => {
       this.cardYears = years;
       if (this.cardYears.length > 0) {
@@ -97,6 +101,31 @@ export class CheckoutComponent implements OnInit {
       this.checkoutFormGroup.controls['billingAddress'].setValue(
         this.defaultAddress
       );
+    }
+  }
+
+  handleMonthsAndYears(): void {
+    const selectedYear: number = Number(
+      this.checkoutFormGroup.get('creditCardDetails')?.value.expirationYear
+    );
+
+    /**
+     * startMonth is January by default.
+     * If the current year equals the selected year, then startMonth is the current month.
+     */
+    let startMonth: number = 1;
+    if (this.currentYear === selectedYear) {
+      startMonth = this.currentMonth;
+    }
+
+    this.formService
+      .getCreditCardMonths(startMonth)
+      .subscribe((months) => (this.cardMonths = months));
+
+    if (this.currentYear === selectedYear && this.cardMonths.length > 0) {
+      this.checkoutFormGroup
+        .get('creditCardDetails.expirationMonth')
+        ?.setValue(this.cardMonths[0]);
     }
   }
 }

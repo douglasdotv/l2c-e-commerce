@@ -1,7 +1,8 @@
 <div class="cart-area">
   <a [routerLink]="['/cart-details']">
     <div class="total">
-      {{ totalPrice | currency : "USD" }} <span> {{ totalQuantity }}</span>
+      {{ totalPrice$ | async | currency : "USD" }}
+      <span> {{ totalQuantity$ | async }}</span>
     </div>
     <i class="fa fa-shopping-cart" aria-hidden="true"></i>
   </a>

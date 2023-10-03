@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CartItem } from 'src/app/common/cart-item';
 import { CartService } from 'src/app/services/cart.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-cart-details',
@@ -10,8 +11,8 @@ import { CartService } from 'src/app/services/cart.service';
 export class CartDetailsComponent implements OnInit {
 
   cartItems: CartItem[] = [];
-  totalPrice: number = 0;
-  totalQuantity: number = 0;
+  totalPrice$!: Observable<number>;
+  totalQuantity$!: Observable<number>;
 
   constructor(private cartService: CartService) { }
 
@@ -21,15 +22,8 @@ export class CartDetailsComponent implements OnInit {
 
   showCartDetails(): void {
     this.cartItems = this.cartService.cartItems;
-
-    this.cartService.totalPrice.subscribe(
-      price => this.totalPrice = price
-    );
-
-    this.cartService.totalQuantity.subscribe(
-      quantity => this.totalQuantity = quantity
-    );
-
+    this.totalPrice$ = this.cartService.totalPrice;
+    this.totalQuantity$ = this.cartService.totalQuantity;
     this.cartService.getCartTotals();
   }
 

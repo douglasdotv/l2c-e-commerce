@@ -50,8 +50,8 @@
             <tr>
               <td colspan="2"></td>
               <td class="text-right fw-bold">
-                Total items: {{ totalQuantity }} <br />
-                Total price: {{ totalPrice | currency : "USD" }} <br />
+                Total items: {{ totalQuantity$ | async }} <br />
+                Total price: {{ totalPrice$ | async | currency : 'USD' }} <br />
                 Shipping: FREE
                 <br />
                 <a

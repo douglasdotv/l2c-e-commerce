@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductCategory } from 'src/app/common/product-category';
 import { ProductService } from 'src/app/services/product.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-product-category-menu',
@@ -8,7 +9,7 @@ import { ProductService } from 'src/app/services/product.service';
   styleUrls: ['./product-category-menu.component.css'],
 })
 export class ProductCategoryMenuComponent implements OnInit {
-  productCategories: ProductCategory[] = [];
+  productCategories$!: Observable<ProductCategory[]>;
 
   constructor(private productService: ProductService) {}
 
@@ -17,8 +18,6 @@ export class ProductCategoryMenuComponent implements OnInit {
   }
 
   listProductCategories(): void {
-    this.productService.getAllProductCategories().subscribe((data) => {
-      this.productCategories = data;
-    });
+    this.productCategories$ = this.productService.getAllProductCategories();
   }
 }

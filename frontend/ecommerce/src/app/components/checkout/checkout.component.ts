@@ -254,6 +254,7 @@ export class CheckoutComponent implements OnInit {
           Validators.pattern('^[0-9]+$'),
           Validators.minLength(13),
           Validators.maxLength(19),
+          CustomValidators.luhnCheck,
         ],
       ],
       securityCode: [

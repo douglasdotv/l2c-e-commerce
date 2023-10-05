@@ -439,6 +439,9 @@
                 >
                   Card number must be between 13 and 19 characters long.
                 </div>
+                <div *ngIf="creditCardDetailsCardNumber?.errors?.['luhnCheck']">
+                  Card number is invalid.
+                </div>
               </div>
             </div>
           </div>

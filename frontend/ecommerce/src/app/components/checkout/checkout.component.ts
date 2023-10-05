@@ -129,10 +129,12 @@ export class CheckoutComponent implements OnInit {
   /**
    * Listen to value changes in the checkout form
    * When the country changes, the states are updated
+   * When the credit card number changes, the credit card type is updated
    * When the credit card expiration year changes, the months are updated
    */
   setupValueChangeListeners(): void {
     this.setupCountryChangeListeners();
+    this.setupCardNumberChangeListeners();
     this.setupDateChangeListeners();
   }
 
@@ -147,6 +149,27 @@ export class CheckoutComponent implements OnInit {
       .get('billingAddress.country')
       ?.valueChanges.subscribe((country) => {
         this.updateStatesForCountry(country, 'billingAddress');
+      });
+  }
+
+  setupCardNumberChangeListeners(): void {
+    this.checkoutFormGroup
+      .get('creditCardDetails.cardNumber')
+      ?.valueChanges.subscribe((cardNumber) => {
+        const firstDigit = cardNumber.charAt(0);
+        const firstTwoDigits = cardNumber.substring(0, 2);
+        let cardType = this.checkoutFormGroup.get('creditCardDetails.cardType');
+
+        if (firstDigit === '4') {
+          cardType?.setValue('Visa');
+        } else if (
+          (firstTwoDigits >= 51 && firstTwoDigits <= 55) ||
+          (firstTwoDigits >= 22 && firstTwoDigits <= 27)
+        ) {
+          cardType?.setValue('MasterCard');
+        } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
+          cardType?.setValue('American Express');
+        }
       });
   }
 
@@ -268,18 +291,11 @@ export class CheckoutComponent implements OnInit {
       ],
       expirationMonth: [
         '',
-        [
-          Validators.required,
-          Validators.min(1),
-          Validators.max(12),
-        ],
+        [Validators.required, Validators.min(1), Validators.max(12)],
       ],
       expirationYear: [
         '',
-        [
-          Validators.required,
-          Validators.min(new Date().getFullYear()),
-        ],
+        [Validators.required, Validators.min(new Date().getFullYear())],
       ],
     });
   }

@@ -9,7 +9,9 @@ import {
 import { Country } from 'src/app/common/country';
 import { State } from 'src/app/common/state';
 import { CheckoutFormService } from 'src/app/services/checkout-form.service';
+import { CartService } from 'src/app/services/cart.service';
 import { CustomValidators } from 'src/app/validators/custom-validators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-checkout',
@@ -26,10 +28,13 @@ export class CheckoutComponent implements OnInit {
   cardYears: number[] = [];
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
+  totalPrice$!: Observable<number>;
+  totalQuantity$!: Observable<number>;
 
   constructor(
     private formBuilder: FormBuilder,
-    private formService: CheckoutFormService
+    private formService: CheckoutFormService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +42,7 @@ export class CheckoutComponent implements OnInit {
     this.populateCardDates();
     this.populateCountriesAndStates();
     this.setupValueChangeListeners();
+    this.reviewCartDetails();
   }
 
   initializeCheckoutForm(): void {
@@ -202,6 +208,11 @@ export class CheckoutComponent implements OnInit {
     } else {
       this.checkoutFormGroup.controls['billingAddress'].reset();
     }
+  }
+
+  reviewCartDetails(): void {
+    this.totalPrice$ = this.cartService.totalPrice;
+    this.totalQuantity$ = this.cartService.totalQuantity;
   }
 
   onSubmit(): void {

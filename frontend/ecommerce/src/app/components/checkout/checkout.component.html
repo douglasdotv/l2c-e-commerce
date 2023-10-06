@@ -542,6 +542,26 @@
             </div>
           </div>
         </fieldset>
+        <div class="container-fluid">
+          <div class="form-area">
+            <legend class="fw-bold mb-4">Review Your Order</legend>
+            <div class="row">
+              <div class="col-md-4">
+                <p>
+                  <strong>Total Quantity:</strong> {{ totalQuantity$ | async }}
+                </p>
+              </div>
+              <div class="col-md-4">
+                <p>
+                  <strong>Total Price:</strong> {{ totalPrice$ | async }} USD
+                </p>
+              </div>
+              <div class="col-md-4">
+                <p><strong>Shipping:</strong> Free</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="text-center">
           <button type="submit" class="btn btn-primary mb-3">Purchase</button>
         </div>

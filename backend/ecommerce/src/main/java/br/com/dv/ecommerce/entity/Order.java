@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -34,11 +35,11 @@ public class Order {
 
     @Column(name = "date_created")
     @CreationTimestamp
-    private String dateCreated;
+    private Date dateCreated;
 
     @Column(name = "last_updated")
     @UpdateTimestamp
-    private String lastUpdated;
+    private Date lastUpdated;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)

@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -55,5 +56,15 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
     private Set<OrderItem> orderItems;
+
+    public void add(OrderItem orderItem) {
+        if (orderItem != null) {
+            if (orderItems == null) {
+                orderItems = new HashSet<>();
+            }
+            orderItems.add(orderItem);
+            orderItem.setOrder(this);
+        }
+    }
 
 }

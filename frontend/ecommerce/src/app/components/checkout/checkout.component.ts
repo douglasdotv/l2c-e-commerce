@@ -170,19 +170,21 @@ export class CheckoutComponent implements OnInit {
     this.checkoutFormGroup
       .get('creditCardDetails.cardNumber')
       ?.valueChanges.subscribe((cardNumber) => {
-        const firstDigit = cardNumber.charAt(0);
-        const firstTwoDigits = cardNumber.substring(0, 2);
-        let cardType = this.checkoutFormGroup.get('creditCardDetails.cardType');
+        if (cardNumber) {
+          const firstDigit = cardNumber.charAt(0);
+          const firstTwoDigits = cardNumber.substring(0, 2);
+          const cardType = this.checkoutFormGroup.get('creditCardDetails.cardType');
 
-        if (firstDigit === '4') {
-          cardType?.setValue('Visa');
-        } else if (
-          (firstTwoDigits >= 51 && firstTwoDigits <= 55) ||
-          (firstTwoDigits >= 22 && firstTwoDigits <= 27)
-        ) {
-          cardType?.setValue('MasterCard');
-        } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
-          cardType?.setValue('American Express');
+          if (firstDigit === '4') {
+            cardType?.setValue('Visa');
+          } else if (
+            (firstTwoDigits >= 51 && firstTwoDigits <= 55) ||
+            (firstTwoDigits >= 22 && firstTwoDigits <= 27)
+          ) {
+            cardType?.setValue('MasterCard');
+          } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
+            cardType?.setValue('American Express');
+          }
         }
       });
   }
@@ -286,13 +288,13 @@ export class CheckoutComponent implements OnInit {
     return this.formBuilder.group({
       firstName: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^[a-zA-Z]+$/),
+        Validators.pattern(/^[a-zA-Z\u00C0-\u017F\s]+$/),
         Validators.minLength(2),
         CustomValidators.notOnlyWhitespace,
       ]),
       lastName: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^[a-zA-Z]+$/),
+        Validators.pattern(/^[a-zA-Z\u00C0-\u017F\s]+$/),
         Validators.minLength(2),
         CustomValidators.notOnlyWhitespace,
       ]),
@@ -312,7 +314,7 @@ export class CheckoutComponent implements OnInit {
       state: new FormControl('', [Validators.required]),
       city: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^[a-zA-Z]+$/),
+        Validators.pattern(/^[a-zA-Z\u00C0-\u017F\s]+$/),
         Validators.minLength(2),
         CustomValidators.notOnlyWhitespace,
       ]),
@@ -336,7 +338,7 @@ export class CheckoutComponent implements OnInit {
         '',
         [
           Validators.required,
-          Validators.pattern(/^[a-zA-Z\s,'-]+$/),
+          Validators.pattern(/^[a-zA-Z\u00C0-\u017F\s]+$/),
           Validators.minLength(2),
         ],
       ],

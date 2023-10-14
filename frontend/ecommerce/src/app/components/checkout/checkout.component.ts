@@ -11,7 +11,14 @@ import { State } from 'src/app/common/state';
 import { CheckoutFormService } from 'src/app/services/checkout-form.service';
 import { CartService } from 'src/app/services/cart.service';
 import { CustomValidators } from 'src/app/validators/custom-validators';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { CheckoutService } from 'src/app/services/checkout.service';
+import { Order } from 'src/app/common/order';
+import { CartItem } from 'src/app/common/cart-item';
+import { OrderItem } from 'src/app/common/order-item';
+import { Purchase } from 'src/app/common/purchase';
+import { Customer } from 'src/app/common/customer';
+import { Address } from 'src/app/common/address';
 
 @Component({
   selector: 'app-checkout',
@@ -34,7 +41,8 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private formService: CheckoutFormService,
-    private cartService: CartService
+    private cartService: CartService,
+    private checkoutService: CheckoutService,
   ) {}
 
   ngOnInit(): void {
@@ -218,9 +226,60 @@ export class CheckoutComponent implements OnInit {
   onSubmit(): void {
     if (this.checkoutFormGroup.invalid) {
       this.checkoutFormGroup.markAllAsTouched();
-    } else {
-      // TODO: Handle the form submission
+      return;
     }
+
+    // Set up order
+    const order: Order = new Order(
+      (this.cartService.totalPrice as BehaviorSubject<number>).value,
+      (this.cartService.totalQuantity as BehaviorSubject<number>).value
+    );
+
+    // Create orderItems from cartItems
+    const cartItems: CartItem[] = this.cartService.cartItems;
+    const orderItems: OrderItem[] = cartItems.map((item) => new OrderItem(item));
+
+    // Get customer and address info from the form
+    const customer: Customer = this.checkoutFormGroup.controls['customer'].value;
+
+    const rawShippingAddress = this.checkoutFormGroup.controls['shippingAddress'].value;
+    const rawBillingAddress = this.checkoutFormGroup.controls['billingAddress'].value;
+
+    const shippingAddress: Address = {
+      ...rawShippingAddress,
+      country: rawShippingAddress.country.name,
+      state: rawShippingAddress.state.name
+    };
+    const billingAddress: Address = {
+      ...rawBillingAddress,
+      country: rawBillingAddress.country.name,
+      state: rawBillingAddress.state.name
+    };
+
+    // Set up purchase
+    const purchase: Purchase = new Purchase(
+      customer,
+      shippingAddress,
+      billingAddress,
+      order,
+      orderItems
+    );
+
+    // Call API via CheckoutService
+    this.checkoutService.placeOrder(purchase).subscribe({
+      next: (resp) => {
+        alert(`Your order has been received.\nOrder tracking number: ${resp.orderTrackingNumber}`);
+        this.cartService.resetCart();
+        this.resetForm();
+      },
+      error: (e) => {
+        alert(`Error! ${e.message}`);
+      },
+    });
+  }
+
+  private resetForm(): void {
+    this.checkoutFormGroup.reset();
   }
 
   private customerGroup(): FormGroup {

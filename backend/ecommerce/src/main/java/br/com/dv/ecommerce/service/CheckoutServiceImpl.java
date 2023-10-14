@@ -8,6 +8,7 @@ import br.com.dv.ecommerce.entity.Customer;
 import br.com.dv.ecommerce.entity.Order;
 import br.com.dv.ecommerce.entity.OrderItem;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         this.customerRepository = customerRepository;
     }
 
+    @Transactional
     @Override
     public PurchaseResponse placeOrder(Purchase purchase) {
         Order order = purchase.order();

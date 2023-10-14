@@ -68,4 +68,10 @@ export class CartService {
 
     this.getCartTotals();
   }
+
+  resetCart(): void {
+    this.cartItems = [];
+    this.totalPrice.next(0);
+    this.totalQuantity.next(0);
+  }
 }

@@ -1,0 +1,20 @@
+.login-status-container {
+  display: flex;
+  align-items: center;
+}
+
+.security-btn {
+  min-width: 95px;
+  color: #fff;
+  border: 1px solid #205b8d;
+  border-radius: 43px;
+  background: #205b8d;
+  margin-left: 5px;
+}
+
+.login-status-user-info {
+  line-height: 43px;
+  padding: 0 5px;
+  border-radius: 3px;
+  transition: all 0.5s ease;
+}

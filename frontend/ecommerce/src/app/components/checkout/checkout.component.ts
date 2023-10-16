@@ -278,6 +278,9 @@ export class CheckoutComponent implements OnInit {
         alert(`Error! ${e.message}`);
       },
     });
+
+    // Reset cart
+    this.cartService.resetCart();
   }
 
   private resetForm(): void {

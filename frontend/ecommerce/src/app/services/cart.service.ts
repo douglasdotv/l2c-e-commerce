@@ -7,9 +7,18 @@ import { CartItem } from '../common/cart-item';
 })
 export class CartService {
   cartItems: CartItem[] = [];
-
   totalPrice: Subject<number> = new BehaviorSubject<number>(0);
   totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
+  storage: Storage = sessionStorage;
+
+  constructor() {
+    const data = JSON.parse(this.storage.getItem('cartItems')!);
+
+    if (data !== null) {
+      this.cartItems = data;
+      this.updateAndPersistCartTotals();
+    }
+  }
 
   addToCart(cartItem: CartItem): void {
     let alreadyExistsInCart: boolean = false;
@@ -26,10 +35,10 @@ export class CartService {
       existingCartItem!.quantity++;
     }
 
-    this.getCartTotals();
+    this.updateAndPersistCartTotals();
   }
 
-  getCartTotals(): void {
+  updateAndPersistCartTotals(): void {
     let totalPriceValue: number = 0;
     let totalQuantityValue: number = 0;
 
@@ -40,11 +49,13 @@ export class CartService {
 
     this.totalPrice.next(totalPriceValue);
     this.totalQuantity.next(totalQuantityValue);
+
+    this.persistCartItems();
   }
 
   incrementQuantity(cartItem: CartItem): void {
     cartItem.quantity++;
-    this.getCartTotals();
+    this.updateAndPersistCartTotals();
   }
 
   decrementQuantity(cartItem: CartItem): void {
@@ -53,7 +64,7 @@ export class CartService {
     if (cartItem.quantity === 0) {
       this.removeFromCart(cartItem);
     } else {
-      this.getCartTotals();
+      this.updateAndPersistCartTotals();
     }
   }
 
@@ -66,12 +77,17 @@ export class CartService {
       this.cartItems.splice(itemIndex, 1);
     }
 
-    this.getCartTotals();
+    this.updateAndPersistCartTotals();
   }
 
   resetCart(): void {
     this.cartItems = [];
     this.totalPrice.next(0);
     this.totalQuantity.next(0);
+    this.storage.removeItem('cartItems');
+  }
+
+  persistCartItems(): void {
+    this.storage.setItem('cartItems', JSON.stringify(this.cartItems));
   }
 }

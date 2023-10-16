@@ -17,12 +17,18 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './components/login/login.component';
 import { LoginStatusComponent } from './components/login-status/login-status.component';
 
-import { OktaAuthModule, OktaCallbackComponent, OKTA_CONFIG } from '@okta/okta-angular';
+import { OktaAuthModule, OktaCallbackComponent, OKTA_CONFIG, OktaAuthGuard } from '@okta/okta-angular';
 import { OktaAuth } from '@okta/okta-auth-js';
 import AppConfig from './config/app-config';
 
+import { MembersPageComponent } from './components/members-page/members-page.component';
+
 const oktaConfig = AppConfig.oidc;
 const oktaAuth = new OktaAuth(oktaConfig);
+
+export function sendToLoginPage() {
+  window.location.href = '/login';
+}
 
 const routes: Routes = [
   { path: 'search/:keyword', component: ProductListComponent },
@@ -34,6 +40,7 @@ const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent },
   { path: 'login', component: LoginComponent },
   { path: 'login/callback', component: OktaCallbackComponent },
+  { path: 'members', component: MembersPageComponent, canActivate: [OktaAuthGuard], data: { onAuthRequired: sendToLoginPage } },
   { path: '', redirectTo: '/products', pathMatch: 'full' },
   { path: '**', redirectTo: '/products', pathMatch: 'full' },
 ];
@@ -49,7 +56,8 @@ const routes: Routes = [
     CartDetailsComponent,
     CheckoutComponent,
     LoginComponent,
-    LoginStatusComponent
+    LoginStatusComponent,
+    MembersPageComponent
   ],
   imports: [
     BrowserModule,

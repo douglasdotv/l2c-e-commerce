@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,20 +29,17 @@ public class CheckoutServiceImpl implements CheckoutService {
         Order order = purchase.order();
 
         String orderTrackingNumber = generateOrderTrackingNumber();
+
         order.setOrderTrackingNumber(orderTrackingNumber);
 
-        Collection<OrderItem> orderItems = purchase.orderItems();
-        orderItems.forEach(order::add);
+        order.setShippingAddress(purchase.shippingAddress());
+        order.setBillingAddress(purchase.billingAddress());
 
-        Address shippingAddress = purchase.shippingAddress();
-        order.setShippingAddress(shippingAddress);
+        purchase.orderItems().forEach(order::add);
 
-        Address billingAddress = purchase.billingAddress();
-        order.setBillingAddress(billingAddress);
-
-        Customer customer = purchase.customer();
+        Optional<Customer> customerOptional = customerRepository.findByEmail(purchase.customer().getEmail());
+        Customer customer = customerOptional.orElseGet(purchase::customer);
         customer.add(order);
-
         customerRepository.save(customer);
 
         return new PurchaseResponse(orderTrackingNumber);

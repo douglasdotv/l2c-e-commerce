@@ -4,14 +4,16 @@ import br.com.dv.ecommerce.entity.Address;
 import br.com.dv.ecommerce.entity.Customer;
 import br.com.dv.ecommerce.entity.Order;
 import br.com.dv.ecommerce.entity.OrderItem;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
 public record Purchase(
-        Customer customer,
-        Address shippingAddress,
-        Address billingAddress,
-        Order order,
-        Set<OrderItem> orderItems
+        @NotNull Customer customer,
+        @NotNull Address shippingAddress,
+        @NotNull Address billingAddress,
+        @NotNull Order order,
+        @NotEmpty Set<OrderItem> orderItems
 ) {
 }

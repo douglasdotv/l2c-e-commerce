@@ -6,6 +6,7 @@ import br.com.dv.ecommerce.dto.PurchaseResponse;
 import br.com.dv.ecommerce.service.CheckoutService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +21,12 @@ public class CheckoutController {
     }
 
     @PostMapping("/purchase")
-    public ResponseEntity<PurchaseResponse> placeOrder(@RequestBody Purchase purchase) {
+    public ResponseEntity<PurchaseResponse> placeOrder(@Valid @RequestBody Purchase purchase) {
         return ResponseEntity.ok(checkoutService.placeOrder(purchase));
     }
 
     @PostMapping("/payment-intent")
-    public ResponseEntity<String> createPaymentIntent(@RequestBody PaymentInfo paymentInfo)
+    public ResponseEntity<String> createPaymentIntent(@Valid @RequestBody PaymentInfo paymentInfo)
             throws StripeException {
         PaymentIntent paymentIntent = checkoutService.createPaymentIntent(paymentInfo);
         return ResponseEntity.ok(paymentIntent.toJson());

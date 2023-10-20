@@ -5,4 +5,5 @@ export const environment = {
   clientId: 'clientId',
   issuer: 'issuer',
   apiUrl: 'apiUrl',
+  stripePublishableKey: 'stripePublishableKey',
 };

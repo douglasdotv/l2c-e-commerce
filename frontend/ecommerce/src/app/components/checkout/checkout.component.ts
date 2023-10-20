@@ -19,6 +19,8 @@ import { OrderItem } from 'src/app/common/order-item';
 import { Purchase } from 'src/app/common/purchase';
 import { Customer } from 'src/app/common/customer';
 import { Address } from 'src/app/common/address';
+import { environment } from 'src/environments/environment';
+import { PaymentInfo } from 'src/app/common/payment-info';
 
 @Component({
   selector: 'app-checkout',
@@ -27,27 +29,31 @@ import { Address } from 'src/app/common/address';
 })
 export class CheckoutComponent implements OnInit {
   checkoutFormGroup!: FormGroup;
+
   countries: Country[] = [];
   shippingAddressStates: State[] = [];
   billingAddressStates: State[] = [];
-  cardTypes: string[] = ['Visa', 'MasterCard', 'American Express'];
-  cardMonths: number[] = [];
-  cardYears: number[] = [];
-  currentMonth: number = new Date().getMonth() + 1;
-  currentYear: number = new Date().getFullYear();
+
+  // Credit card details are handled by Stripe Elements
+
   totalPrice$!: Observable<number>;
   totalQuantity$!: Observable<number>;
+
+  stripe: any = Stripe(environment.stripePublishableKey);
+  paymentInfo: PaymentInfo = new PaymentInfo();
+  cardElement: any;
+  displayError: string = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private formService: CheckoutFormService,
     private cartService: CartService,
-    private checkoutService: CheckoutService,
+    private checkoutService: CheckoutService
   ) {}
 
   ngOnInit(): void {
+    this.setupStripePaymentForm();
     this.initializeCheckoutForm();
-    this.populateCardDates();
     this.populateCountriesAndStates();
     this.setupValueChangeListeners();
     this.reviewCartDetails();
@@ -61,36 +67,7 @@ export class CheckoutComponent implements OnInit {
       customer: this.customerGroup(),
       shippingAddress: this.addressGroup(),
       billingAddress: this.addressGroup(),
-      creditCardDetails: this.creditCardDetailsGroup(),
-    });
-  }
-
-  /**
-   * Populate credit card expiration months and years in the checkout form
-   * By default, the current month and year are selected
-   */
-  populateCardDates(): void {
-    this.populateCardMonths();
-    this.populateCardYears();
-  }
-
-  populateCardMonths(): void {
-    this.formService
-      .getCreditCardMonths(this.currentMonth)
-      .subscribe((months) => {
-        this.cardMonths = months;
-        this.checkoutFormGroup
-          .get('creditCardDetails.expirationMonth')
-          ?.setValue(this.cardMonths[0]);
-      });
-  }
-
-  populateCardYears(): void {
-    this.formService.getCreditCardYears().subscribe((years) => {
-      this.cardYears = years;
-      this.checkoutFormGroup
-        .get('creditCardDetails.expirationYear')
-        ?.setValue(this.currentYear);
+      creditCardDetails: '' // Credit card details are handled by Stripe Elements
     });
   }
 
@@ -148,8 +125,6 @@ export class CheckoutComponent implements OnInit {
    */
   setupValueChangeListeners(): void {
     this.setupCountryChangeListeners();
-    this.setupCardNumberChangeListeners();
-    this.setupDateChangeListeners();
   }
 
   setupCountryChangeListeners(): void {
@@ -166,50 +141,6 @@ export class CheckoutComponent implements OnInit {
       });
   }
 
-  setupCardNumberChangeListeners(): void {
-    this.checkoutFormGroup
-      .get('creditCardDetails.cardNumber')
-      ?.valueChanges.subscribe((cardNumber) => {
-        if (cardNumber) {
-          const firstDigit = cardNumber.charAt(0);
-          const firstTwoDigits = cardNumber.substring(0, 2);
-          const cardType = this.checkoutFormGroup.get('creditCardDetails.cardType');
-
-          if (firstDigit === '4') {
-            cardType?.setValue('Visa');
-          } else if (
-            (firstTwoDigits >= 51 && firstTwoDigits <= 55) ||
-            (firstTwoDigits >= 22 && firstTwoDigits <= 27)
-          ) {
-            cardType?.setValue('MasterCard');
-          } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
-            cardType?.setValue('American Express');
-          }
-        }
-      });
-  }
-
-  setupDateChangeListeners(): void {
-    this.checkoutFormGroup
-      .get('creditCardDetails.expirationYear')
-      ?.valueChanges.subscribe((year) => {
-        this.updateCardExpirationMonths(Number(year));
-      });
-  }
-
-  updateCardExpirationMonths(selectedYear: number): void {
-    const january: number = 1;
-    const startMonth: number =
-      selectedYear === this.currentYear ? this.currentMonth : january;
-
-    this.formService.getCreditCardMonths(startMonth).subscribe((months) => {
-      this.cardMonths = months;
-      this.checkoutFormGroup
-        .get('creditCardDetails.expirationMonth')
-        ?.setValue(this.cardMonths[0]);
-    });
-  }
-
   copyShippingAddressToBillingAddress(event: any): void {
     if (event.target.checked) {
       this.checkoutFormGroup.controls['billingAddress'].setValue(
@@ -220,13 +151,36 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
+  setupStripePaymentForm(): void {
+    // Get Stripe Elements
+    const elements = this.stripe.elements();
+
+    // Create an instance of the card Element
+    this.cardElement = elements.create(
+      'card',
+      { hidePostalCode: true }
+    );
+
+    // Add an instance of the card Element into the `card-element` <div>
+    this.cardElement.mount('#card-element');
+
+    // Handle real-time validation errors from the card Element
+    this.cardElement.addEventListener('change', (event: any) => {
+      if (event.error) {
+        this.displayError = event.error.message;
+      } else {
+        this.displayError = '';
+      }
+    });
+  }
+
   reviewCartDetails(): void {
     this.totalPrice$ = this.cartService.totalPrice;
     this.totalQuantity$ = this.cartService.totalQuantity;
   }
 
   onSubmit(): void {
-    if (this.checkoutFormGroup.invalid) {
+    if (this.checkoutFormGroup.invalid || this.displayError !== '') {
       this.checkoutFormGroup.markAllAsTouched();
       return;
     }
@@ -239,48 +193,91 @@ export class CheckoutComponent implements OnInit {
 
     // Create orderItems from cartItems
     const cartItems: CartItem[] = this.cartService.cartItems;
-    const orderItems: OrderItem[] = cartItems.map((item) => new OrderItem(item));
+    const orderItems: OrderItem[] = cartItems.map(
+      (item) => new OrderItem(item)
+    );
 
     // Get customer and address info from the form
-    const customer: Customer = this.checkoutFormGroup.controls['customer'].value;
+    const customer: Customer =
+      this.checkoutFormGroup.controls['customer'].value;
 
-    const rawShippingAddress = this.checkoutFormGroup.controls['shippingAddress'].value;
-    const rawBillingAddress = this.checkoutFormGroup.controls['billingAddress'].value;
+    const rawShippingAddress =
+      this.checkoutFormGroup.controls['shippingAddress'].value;
+    const rawBillingAddress =
+      this.checkoutFormGroup.controls['billingAddress'].value;
 
     const shippingAddress: Address = {
       ...rawShippingAddress,
       country: rawShippingAddress.country.name,
-      state: rawShippingAddress.state.name
+      state: rawShippingAddress.state.name,
     };
     const billingAddress: Address = {
       ...rawBillingAddress,
       country: rawBillingAddress.country.name,
-      state: rawBillingAddress.state.name
+      state: rawBillingAddress.state.name,
     };
 
-    // Set up purchase
-    const purchase: Purchase = new Purchase(
-      customer,
-      shippingAddress,
-      billingAddress,
-      order,
-      orderItems
-    );
+    // Compute Stripe payment info
+    this.paymentInfo.amount = Math.round(order.totalPrice);
+    this.paymentInfo.currency = 'usd';
 
-    // Call API via CheckoutService
-    this.checkoutService.placeOrder(purchase).subscribe({
-      next: (resp) => {
-        alert(`Your order has been received.\nOrder tracking number: ${resp.orderTrackingNumber}`);
-        this.cartService.resetCart();
-        this.resetForm();
-      },
-      error: (e) => {
-        alert(`Error! ${e.message}`);
-      },
-    });
-
-    // Reset cart
-    this.cartService.resetCart();
+    // Create payment intent
+    this.checkoutService
+      .createPaymentIntent(this.paymentInfo)
+      .subscribe((paymentIntentResponse) => {
+        this.stripe
+          .confirmCardPayment(
+            paymentIntentResponse.client_secret,
+            {
+              payment_method: {
+                card: this.cardElement,
+                billing_details: {
+                  name: `${customer.firstName} ${customer.lastName}`,
+                  email: customer.email,
+                  address: {
+                    city: shippingAddress.city,
+                    country: shippingAddress.country,
+                    state: shippingAddress.state,
+                    line1: shippingAddress.street,
+                    line2: null,
+                    postal_code: shippingAddress.zipCode,
+                  },
+                },
+              },
+            },
+            { handleActions: false }
+          )
+          .then(
+            (result: {
+              error: { message: any };
+              paymentIntent: { status: string };
+            }) => {
+              if (result.error) {
+                alert(result.error.message);
+              } else if (result.paymentIntent.status === 'succeeded') {
+                const purchase: Purchase = new Purchase(
+                  customer,
+                  shippingAddress,
+                  billingAddress,
+                  order,
+                  orderItems
+                );
+                this.checkoutService.placeOrder(purchase).subscribe({
+                  next: (response) => {
+                    alert(
+                      `Your order has been received!\nYou can track it: ${response.orderTrackingNumber}`
+                    );
+                    this.resetForm();
+                    this.cartService.resetCart();
+                  },
+                  error: (e) => {
+                    alert(`Error: ${e.message}`);
+                  },
+                });
+              }
+            }
+          );
+      });
   }
 
   private resetForm(): void {
@@ -334,47 +331,6 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  private creditCardDetailsGroup(): FormGroup {
-    return this.formBuilder.group({
-      cardType: ['Visa', [Validators.required]],
-      nameOnCard: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(/^[a-zA-Z\u00C0-\u017F\s]+$/),
-          Validators.minLength(2),
-        ],
-      ],
-      cardNumber: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern('^[0-9]+$'),
-          Validators.minLength(13),
-          Validators.maxLength(19),
-          CustomValidators.luhnCheck,
-        ],
-      ],
-      securityCode: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern('^[0-9]+$'),
-          Validators.minLength(3),
-          Validators.maxLength(4),
-        ],
-      ],
-      expirationMonth: [
-        '',
-        [Validators.required, Validators.min(1), Validators.max(12)],
-      ],
-      expirationYear: [
-        '',
-        [Validators.required, Validators.min(new Date().getFullYear())],
-      ],
-    });
-  }
-
   get firstName(): AbstractControl<any, any> | null {
     return this.checkoutFormGroup.get('customer.firstName');
   }
@@ -384,7 +340,6 @@ export class CheckoutComponent implements OnInit {
   get email(): AbstractControl<any, any> | null {
     return this.checkoutFormGroup.get('customer.email');
   }
-
   get shippingAddressCountry(): AbstractControl<any, any> | null {
     return this.checkoutFormGroup.get('shippingAddress.country');
   }
@@ -400,7 +355,6 @@ export class CheckoutComponent implements OnInit {
   get shippingAddressZipCode(): AbstractControl<any, any> | null {
     return this.checkoutFormGroup.get('shippingAddress.zipCode');
   }
-
   get billingAddressCountry(): AbstractControl<any, any> | null {
     return this.checkoutFormGroup.get('billingAddress.country');
   }
@@ -415,24 +369,5 @@ export class CheckoutComponent implements OnInit {
   }
   get billingAddressZipCode(): AbstractControl<any, any> | null {
     return this.checkoutFormGroup.get('billingAddress.zipCode');
-  }
-
-  get creditCardDetailsCardType(): AbstractControl<any, any> | null {
-    return this.checkoutFormGroup.get('creditCardDetails.cardType');
-  }
-  get creditCardDetailsNameOnCard(): AbstractControl<any, any> | null {
-    return this.checkoutFormGroup.get('creditCardDetails.nameOnCard');
-  }
-  get creditCardDetailsCardNumber(): AbstractControl<any, any> | null {
-    return this.checkoutFormGroup.get('creditCardDetails.cardNumber');
-  }
-  get creditCardDetailsSecurityCode(): AbstractControl<any, any> | null {
-    return this.checkoutFormGroup.get('creditCardDetails.securityCode');
-  }
-  get creditCardDetailsExpirationMonth(): AbstractControl<any, any> | null {
-    return this.checkoutFormGroup.get('creditCardDetails.expirationMonth');
-  }
-  get creditCardDetailsExpirationYear(): AbstractControl<any, any> | null {
-    return this.checkoutFormGroup.get('creditCardDetails.expirationYear');
   }
 }

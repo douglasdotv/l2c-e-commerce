@@ -20,8 +20,8 @@ public class CheckoutController {
     }
 
     @PostMapping("/purchase")
-    public PurchaseResponse placeOrder(@RequestBody Purchase purchase) {
-        return checkoutService.placeOrder(purchase);
+    public ResponseEntity<PurchaseResponse> placeOrder(@RequestBody Purchase purchase) {
+        return ResponseEntity.ok(checkoutService.placeOrder(purchase));
     }
 
     @PostMapping("/payment-intent")

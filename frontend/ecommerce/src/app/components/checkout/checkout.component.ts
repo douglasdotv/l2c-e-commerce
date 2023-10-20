@@ -224,6 +224,7 @@ export class CheckoutComponent implements OnInit {
     // Compute Stripe payment info
     this.paymentInfo.amount = Math.round(order.totalPrice);
     this.paymentInfo.currency = 'usd';
+    this.paymentInfo.email = customer.email;
 
     // Create payment intent
     this.checkoutService

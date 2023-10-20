@@ -58,7 +58,8 @@ public class CheckoutServiceImpl implements CheckoutService {
         Map<String, Object> params = Map.of(
                 "amount", paymentInfo.amount(),
                 "currency", paymentInfo.currency(),
-                "payment_method_types", paymentMethodTypes
+                "payment_method_types", paymentMethodTypes,
+                "receipt_email", paymentInfo.customerEmail()
         );
 
         return PaymentIntent.create(params);

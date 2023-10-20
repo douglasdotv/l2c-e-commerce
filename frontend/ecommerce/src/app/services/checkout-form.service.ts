@@ -4,13 +4,13 @@ import { Injectable } from '@angular/core';
 import { Country } from '../common/country';
 import { State } from '../common/state';
 import { EmbeddedData } from '../common/embedded-data';
-import { API_CONFIG } from '../config/api-config';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CheckoutFormService {
-  private readonly baseApiUrl: string = API_CONFIG.baseUrl;
+  private readonly apiUrl: string = environment.apiUrl;
   private readonly EXPIRATION_YEAR_RANGE: number = 10;
 
   constructor(private httpClient: HttpClient) {}
@@ -39,7 +39,7 @@ export class CheckoutFormService {
   }
 
   getCountries(): Observable<Country[]> {
-    const url = `${this.baseApiUrl}/countries`;
+    const url = `${this.apiUrl}/countries`;
     return this.httpClient.get<EmbeddedData<Country>>(url).pipe(
       map((response) => {
         return response._embedded['countries'];
@@ -48,7 +48,7 @@ export class CheckoutFormService {
   }
 
   getStatesByCountryCode(countryCode: string): Observable<State[]> {
-    const url = `${this.baseApiUrl}/states/search/findByCountryCode?code=${countryCode}`;
+    const url = `${this.apiUrl}/states/search/findByCountryCode?code=${countryCode}`;
     return this.httpClient.get<EmbeddedData<State>>(url).pipe(
       map((response) => {
         return response._embedded['states'];

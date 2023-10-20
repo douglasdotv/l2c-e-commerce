@@ -1,0 +1,26 @@
+<div class="container main-content">
+  <div class="card">
+    <div class="card-header fw-bold">Order History</div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4" *ngFor="let order of orders$ | async">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+              <h4 class="my-0 fw-normal">
+                Order: {{ order.orderTrackingNumber }}
+              </h4>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title pricing-card-title">
+                {{ order.totalPrice | currency }}
+              </h1>
+              <ul class="list-unstyled mt-3 mb-4">
+                <li>Date Created: {{ order.dateCreated | date }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

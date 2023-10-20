@@ -1,5 +1,6 @@
 <div class="login-status-header">
   <div class="login-status-container">
+    <div class="container">
     <div *ngIf="isAuthenticated && userFullName" class="login-status-user-info">
       Welcome, {{ userFullName }}!
     </div>
@@ -15,5 +16,10 @@
     <button *ngIf="isAuthenticated" routerLink="/members" class="security-btn">
       Members
     </button>
+
+    <button *ngIf="isAuthenticated" routerLink="/order-history" class="security-btn">
+      Orders
+    </button>
+  </div>
   </div>
 </div>

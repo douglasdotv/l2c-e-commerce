@@ -3,14 +3,11 @@ package br.com.dv.ecommerce.service;
 import br.com.dv.ecommerce.dao.CustomerRepository;
 import br.com.dv.ecommerce.dto.Purchase;
 import br.com.dv.ecommerce.dto.PurchaseResponse;
-import br.com.dv.ecommerce.entity.Address;
 import br.com.dv.ecommerce.entity.Customer;
 import br.com.dv.ecommerce.entity.Order;
-import br.com.dv.ecommerce.entity.OrderItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 

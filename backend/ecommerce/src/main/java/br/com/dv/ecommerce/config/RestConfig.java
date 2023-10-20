@@ -1,9 +1,6 @@
 package br.com.dv.ecommerce.config;
 
-import br.com.dv.ecommerce.entity.Country;
-import br.com.dv.ecommerce.entity.Product;
-import br.com.dv.ecommerce.entity.ProductCategory;
-import br.com.dv.ecommerce.entity.State;
+import br.com.dv.ecommerce.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.metamodel.EntityType;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +40,7 @@ public class RestConfig implements RepositoryRestConfigurer, WebMvcConfigurer {
         disableHttpMethods(ProductCategory.class, config, unsupportedActions);
         disableHttpMethods(State.class, config, unsupportedActions);
         disableHttpMethods(Country.class, config, unsupportedActions);
+        disableHttpMethods(Order.class, config, unsupportedActions);
 
         exposeEntityIds(config);
 

@@ -35,14 +35,15 @@ export class CheckoutComponent implements OnInit {
   billingAddressStates: State[] = [];
 
   // Credit card details are handled by Stripe Elements
-
-  totalPrice$!: Observable<number>;
-  totalQuantity$!: Observable<number>;
-
   stripe: any = Stripe(environment.stripePublishableKey);
   paymentInfo: PaymentInfo = new PaymentInfo();
   cardElement: any;
   displayError: string = '';
+
+  totalPrice$!: Observable<number>;
+  totalQuantity$!: Observable<number>;
+
+  paymentButtonIsDisabled: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -185,6 +186,9 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    // Disable the payment button to prevent multiple clicks
+    this.paymentButtonIsDisabled = true;
+
     // Set up order
     const order: Order = new Order(
       (this.cartService.totalPrice as BehaviorSubject<number>).value,
@@ -254,6 +258,7 @@ export class CheckoutComponent implements OnInit {
             }) => {
               if (result.error) {
                 alert(result.error.message);
+                this.paymentButtonIsDisabled = false;
               } else if (result.paymentIntent.status === 'succeeded') {
                 const purchase: Purchase = new Purchase(
                   customer,
@@ -269,9 +274,11 @@ export class CheckoutComponent implements OnInit {
                     );
                     this.resetForm();
                     this.cartService.resetCart();
+                    this.paymentButtonIsDisabled = false;
                   },
                   error: (e) => {
                     alert(`Error: ${e.message}`);
+                    this.paymentButtonIsDisabled = false;
                   },
                 });
               }
